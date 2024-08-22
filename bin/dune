@@ -1,0 +1,4 @@
+(executable
+ (public_name definitional_interpretor)
+ (name main)
+ (libraries definitional_interpretor))
