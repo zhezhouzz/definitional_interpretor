@@ -1,2 +1,9 @@
 (library
- (name definitional_interpretor))
+ (name definitional_interpretor)
+ (modules
+   syntax
+   first_interpretor
+   second_interpretor
+ )
+ (preprocess (pps ppx_deriving.show ppx_deriving.ord ppx_deriving.eq))
+)
