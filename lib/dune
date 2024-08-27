@@ -2,8 +2,11 @@
  (name definitional_interpretor)
  (modules
    syntax
-   first_interpretor
-   second_interpretor
+   first_interpreter
+   second_interpreter
+   third_interpreter
+   forth_interpreter
+   assignment
  )
  (preprocess (pps ppx_deriving.show ppx_deriving.ord ppx_deriving.eq))
 )

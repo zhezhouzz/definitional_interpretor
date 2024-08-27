@@ -28,9 +28,10 @@ struct
     | Lambda lambda -> evlambda lambda e
     | Cond { prem; conc; altr } ->
         if _value_proj_bool (eval prem e) then eval conc e else eval altr e
-    | Letrec { dvar; dexp; body } ->
-        let e' (x : var) = if equal_var x dvar then evlambda dexp e else e x in
-        eval body e'
+    | Letrec { dvar; dexp; body } -> eval body (ext dvar (evlambda dexp e) e)
+    | Escape _ -> failwith "cannot have escape!"
+
+  and ext z a e x = if x #== z then a else e x
 
   and evlambda ({ fp; body } : lambda) (e : env) : value =
     Funval

@@ -9,6 +9,9 @@ module type VAR = sig
 
   val _succ : var
   val _equal : var
+  val _ref : var (* NOTE: for assignment *)
+  val _set : var
+  val _val : var
 
   (** Equal *)
 
@@ -26,12 +29,17 @@ module type EXP = sig
   type exp =
     | Const of const
     | Var of var
-    | Appl of { opr : exp; opnd : exp }
+    | Appl of appl
     | Lambda of lambda
-    | Cond of { prem : exp; conc : exp; altr : exp }
-    | Letrec of { dvar : var; dexp : lambda; body : exp }
+    | Cond of cond
+    | Letrec of letrec
+    | Escape of escp (* NOTE: for section 9. *)
 
-  and lambda = { fp : var; body : exp } [@@deriving show, eq]
+  and appl = { opr : exp; opnd : exp }
+  and lambda = { fp : var; body : exp }
+  and cond = { prem : exp; conc : exp; altr : exp }
+  and letrec = { dvar : var; dexp : lambda; body : exp }
+  and escp = { escv : var; body : exp } [@@deriving show, eq]
 end
 
 module Exp (Var : VAR) (Const : CONST) = struct
@@ -41,12 +49,17 @@ module Exp (Var : VAR) (Const : CONST) = struct
   type exp =
     | Const of const
     | Var of var
-    | Appl of { opr : exp; opnd : exp }
+    | Appl of appl
     | Lambda of lambda
-    | Cond of { prem : exp; conc : exp; altr : exp }
-    | Letrec of { dvar : var; dexp : lambda; body : exp }
+    | Cond of cond
+    | Letrec of letrec
+    | Escape of escp (* NOTE: for section 9. *)
 
-  and lambda = { fp : var; body : exp } [@@deriving show, eq]
+  and appl = { opr : exp; opnd : exp }
+  and lambda = { fp : var; body : exp }
+  and cond = { prem : exp; conc : exp; altr : exp }
+  and letrec = { dvar : var; dexp : lambda; body : exp }
+  and escp = { escv : var; body : exp } [@@deriving show, eq]
 end
 
 module type VALUE = sig
@@ -78,6 +91,9 @@ module Var = struct
 
   let _succ = "succ"
   let _equal = "zero"
+  let _ref = "ref"
+  let _set = "set"
+  let _val = "val"
   let ( #== ) = equal_var
 end
 

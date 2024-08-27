@@ -11,11 +11,18 @@ module type EXP_VALUE = sig
     | Sc
     | Eq1
     | Eq2 of { arg1 : value }
+    | Escf of { cn : cont }
 
   and env =
     | Init
     | Simp of { bvar : Exp.var; bval : value; old : env }
     | Rec of { dvar : Exp.var; dexp : Exp.lambda; old : env }
+
+  and cont =
+    | Fin
+    | Evopn of { ap : Exp.appl; en : env; next : cont }
+    | Apfun of { func : value; next : cont }
+    | Branch of { cn : Exp.cond; en : env; next : cont }
   [@@deriving show, eq]
 
   (** We specialize the signature VALUE here. *)
@@ -53,6 +60,7 @@ struct
     | Sc, a -> Integer (_value_proj_int a + 1)
     | Eq1, _ -> mk_eq2 a
     | Eq2 { arg1 }, _ -> Boolean (equal_value arg1 a)
+    | Escf _, _ -> failwith "cannot have escape!"
   (* Now we can compare two values! *)
 
   and eval (r : exp) (e : env) : value =
@@ -64,6 +72,7 @@ struct
     | Cond { prem; conc; altr } ->
         if _value_proj_bool (eval prem e) then eval conc e else eval altr e
     | Letrec { dvar; dexp; body } -> eval body (Rec { dvar; dexp; old = e })
+    | Escape _ -> failwith "cannot have escape!"
 
   let interpret (r : exp) = eval r Init
 end
@@ -83,11 +92,18 @@ module Value = struct
     | Sc
     | Eq1
     | Eq2 of { arg1 : value }
+    | Escf of { cn : cont }
 
   and env =
     | Init
     | Simp of { bvar : var; bval : value; old : env }
     | Rec of { dvar : var; dexp : lambda; old : env }
+
+  and cont =
+    | Fin
+    | Evopn of { ap : appl; en : env; next : cont }
+    | Apfun of { func : value; next : cont }
+    | Branch of { cn : cond; en : env; next : cont }
   [@@deriving show, eq]
 
   let _value_proj_bool = function
